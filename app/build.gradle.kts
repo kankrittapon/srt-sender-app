@@ -71,6 +71,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 
     // Rename APK on build

@@ -18,7 +18,6 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import java.io.File
 
-import com.example.srtsender.BuildConfig
 import kotlin.comparisons.compareValues
 
 class UpdateManager(private val activity: Activity) {
