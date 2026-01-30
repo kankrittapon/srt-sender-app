@@ -1,0 +1,21 @@
+# Build Artifacts
+/build
+/app/build
+build/
+*.apk
+
+# Secrets
+google-services.json
+key.properties
+*.jks
+*.keystore
+
+# IDE & Config
+.idea/
+.gradle/
+local.properties
+*.iml
+.DS_Store
+/captures
+.externalNativeBuild
+.cxx
