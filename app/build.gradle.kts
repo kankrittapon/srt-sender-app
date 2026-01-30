@@ -15,8 +15,8 @@ android {
         applicationId = "com.yart.livekit"
         minSdk = 24
         targetSdk = 34
-        versionCode = 2
-        versionName = "2.0.0"  // Added srtLatency config from Firebase
+        versionCode = 3
+        versionName = "2.0.1"  // Added srtLatency config from Firebase
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
