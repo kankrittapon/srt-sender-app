@@ -57,3 +57,25 @@ jobs:
         target: "/root/srt_connect/streaming-stack/frontend/web-console/public/apk/"
         strip_components: 5
         overwrite: true
+
+    # 5. Update Web Console Version
+    - name: Extract Version & Update API
+      env:
+        API_SECRET: ${{ secrets.API_SECRET_KEY }}
+      run: |
+        # Extract values from build.gradle.kts
+        VERSION_CODE=$(grep 'versionCode =' app/build.gradle.kts | awk '{print $3}')
+        VERSION_NAME=$(grep 'versionName =' app/build.gradle.kts | cut -d'"' -f2)
+        
+        echo "Detected Build: $VERSION_NAME ($VERSION_CODE)"
+        
+        # Call Web Console API
+        curl -X POST https://srtm.kankrittapon.online/api/version \
+          -H "Content-Type: application/json" \
+          -H "Authorization: Bearer $API_SECRET" \
+          -d "{
+            \"versionCode\": $VERSION_CODE,
+            \"versionName\": \"$VERSION_NAME\",
+            \"downloadUrl\": \"https://srtm.kankrittapon.online/apk/app-release.apk\",
+            \"releaseNotes\": \"Auto-update via GitHub Action (Commit: $(echo $GITHUB_SHA | cut -c1-7))\"
+          }"
