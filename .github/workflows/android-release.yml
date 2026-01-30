@@ -19,9 +19,12 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: gradle
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: '8.11.1'
 
-    # 1. Decode Keystore
+    # 1. Decode Keystore (Moved after Java setup, though order here less critical for keys)
     - name: Decode Keystore
       env:
         ENCODED_STRING: ${{ secrets.KEYSTORE_BASE64 }}
@@ -41,9 +44,7 @@ jobs:
         KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
         KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-      run: |
-        chmod +x gradlew
-        ./gradlew assembleRelease
+      run: gradle assembleRelease
 
     # 4. Upload to Server
     - name: Upload APK to Server
