@@ -43,7 +43,7 @@ jobs:
         KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
       run: |
         chmod +x gradlew
-        bash ./gradlew assembleRelease
+        ./gradlew assembleRelease
 
     # 4. Upload to Server
     - name: Upload APK to Server
