@@ -25,9 +25,31 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            val keyProps = java.util.Properties()
+            val keyFile = file("key.properties")
+            if (keyFile.exists()) {
+                keyProps.load(java.io.FileInputStream(keyFile))
+                storeFile = file(keyProps.getProperty("storeFile"))
+                storePassword = keyProps.getProperty("storePassword")
+                keyAlias = keyProps.getProperty("keyAlias")
+                keyPassword = keyProps.getProperty("keyPassword")
+            } else {
+                // For GitHub Actions
+                storeFile = file("..\\release.jks")
+                storePassword = System.getenv("KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("KEY_ALIAS")
+                keyPassword = System.getenv("KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
@@ -46,6 +68,14 @@ android {
     }
     buildFeatures {
         viewBinding = true
+    }
+
+    // Rename APK on build
+    applicationVariants.all {
+         outputs.all {
+             val output = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
+             output.outputFileName = "app-release.apk"
+         }
     }
 }
 
