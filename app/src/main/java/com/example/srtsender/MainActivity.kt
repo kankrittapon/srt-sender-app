@@ -17,6 +17,7 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.util.Log
 import android.view.Surface
+import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -24,6 +25,7 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import com.example.srtsender.databinding.ActivityMainBinding
 import java.nio.ByteBuffer
 
 class MainActivity : AppCompatActivity() {
@@ -69,6 +71,7 @@ class MainActivity : AppCompatActivity() {
 
     private var gpsFirebaseManager: GpsFirebaseManager? = null
     private var firebaseManager: FirebaseManager? = null
+    private lateinit var updateManager: UpdateManager
 
     private var serverIp: String = "192.168.1.1"
     private var boatId: String = "boat01"
@@ -97,19 +100,7 @@ class MainActivity : AppCompatActivity() {
         // Prevent screen sleep
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-        // Initialize Managers
-        firebaseManager = FirebaseManager(this)
-        gpsFirebaseManager = GpsFirebaseManager(this)
-        updateManager = UpdateManager(this)
-
-        // Check for updates automatically
-        updateManager.checkUpdate()
-
-        // Setup UI
-        initViews()
-        loadSavedConfig()
-
-        // Get params from Login
+        // Get params from Login FIRST so we have boatId for managers
         serverIp = intent.getStringExtra("SERVER_IP") ?: "192.168.1.1"
         boatId = intent.getStringExtra("BOAT_ID") ?: "boat01"
         deviceRole = intent.getStringExtra("DEVICE_ROLE") ?: "racing_boat"
@@ -121,25 +112,18 @@ class MainActivity : AppCompatActivity() {
         
         Log.d("MainActivity", "Role: $deviceRole, Video: $hasVideo, GPS: $hasGps, Port: $srtPort, Latency: ${srtLatency}ms, AutoStart: $autoStart")
 
-        viewFinder = findViewById(R.id.viewFinder)
-        etIp = findViewById(R.id.etIp)
-        etBoatId = findViewById(R.id.etBoatId)
-        btnStart = findViewById(R.id.btnStart)
-        btnSettings = findViewById(R.id.btnSettings)
-        statusText = findViewById(R.id.statusText)
-        statusSrtText = findViewById(R.id.statusSrt)
-        statusFirebaseText = findViewById(R.id.statusFirebase)
-        statusGpsText = findViewById(R.id.statusGps)
-        textBoatIdDisplay = findViewById(R.id.textBoatId)
+        // Initialize Managers
+        firebaseManager = FirebaseManager(boatId)
+        gpsFirebaseManager = GpsFirebaseManager(this, boatId)
+        updateManager = UpdateManager(this)
 
-        // Pre-fill and lock UI
-        etIp.setText(serverIp)
-        etIp.isEnabled = false
-        etBoatId.setText(boatId)
-        etBoatId.isEnabled = false
+        // Check for updates automatically
+        updateManager.checkUpdate()
+
+        // Setup UI
+        initViews()
+        loadSavedConfig()
         
-        // Display Boat ID
-        textBoatIdDisplay.text = boatId
         updateStatusIndicators()
 
         // Default state: Disabled until assigned
@@ -182,6 +166,33 @@ class MainActivity : AppCompatActivity() {
             Log.d("MainActivity", "AUTO_START enabled - will start streaming after room check")
             // Will be handled in checkRoomAssignment callback
         }
+    }
+
+    private fun initViews() {
+        viewFinder = findViewById(R.id.viewFinder)
+        etIp = findViewById(R.id.etIp)
+        etBoatId = findViewById(R.id.etBoatId)
+        btnStart = findViewById(R.id.btnStart)
+        btnSettings = findViewById(R.id.btnSettings)
+        statusText = findViewById(R.id.statusText)
+        statusSrtText = findViewById(R.id.statusSrt)
+        statusFirebaseText = findViewById(R.id.statusFirebase)
+        statusGpsText = findViewById(R.id.statusGps)
+        textBoatIdDisplay = findViewById(R.id.textBoatId)
+
+        // Pre-fill and lock UI use values from Intent
+        etIp.setText(serverIp)
+        etIp.isEnabled = false
+        etBoatId.setText(boatId)
+        etBoatId.isEnabled = false
+        
+        // Display Boat ID
+        textBoatIdDisplay.text = boatId
+    }
+
+    private fun loadSavedConfig() {
+        // Implementation for loading any other local configs if needed
+        // Currently handled by Intent extras from LoginActivity
     }
 
     private fun checkRoomAssignment() {

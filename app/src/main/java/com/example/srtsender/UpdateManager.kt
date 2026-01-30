@@ -18,6 +18,9 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import java.io.File
 
+import com.example.srtsender.BuildConfig
+import kotlin.comparisons.compareValues
+
 class UpdateManager(private val activity: Activity) {
 
     private val database = FirebaseDatabase.getInstance()
@@ -94,12 +97,12 @@ class UpdateManager(private val activity: Activity) {
                     val query = DownloadManager.Query().setFilterById(downloadId)
                     val cursor = downloadManager.query(query)
                     if (cursor.moveToFirst()) {
-                        val status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
-                        if (status == DownloadManager.STATUS_SUCCESSFUL) {
-                             val uriIndex = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI)
-                             // Fallback to manual file path if local uri is null (can happen on some devices)
-                             // But normally we use public directory so we know the path
-                             installApk(fileName)
+                        val statusColumnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
+                        if (statusColumnIndex != -1) {
+                            val status = cursor.getInt(statusColumnIndex)
+                            if (status == DownloadManager.STATUS_SUCCESSFUL) {
+                                installApk(fileName)
+                            }
                         }
                     }
                     cursor.close()
