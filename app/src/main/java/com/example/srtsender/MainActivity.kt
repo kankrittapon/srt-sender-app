@@ -72,6 +72,7 @@ class MainActivity : AppCompatActivity() {
     private var gpsFirebaseManager: GpsFirebaseManager? = null
     private var firebaseManager: FirebaseManager? = null
     private lateinit var updateManager: UpdateManager
+    private var voiceReceiver: VoiceReceiver? = null
 
     private var serverIp: String = "192.168.1.1"
     private var boatId: String = "boat01"
@@ -116,6 +117,7 @@ class MainActivity : AppCompatActivity() {
         firebaseManager = FirebaseManager(boatId)
         gpsFirebaseManager = GpsFirebaseManager(this, boatId)
         updateManager = UpdateManager(this)
+        voiceReceiver = VoiceReceiver(this)
 
         // Check for updates automatically
         updateManager.checkUpdate()
@@ -297,6 +299,11 @@ class MainActivity : AppCompatActivity() {
                                 putExtra("boatId", boatId)
                             }
                             startForegroundService(serviceIntent)
+                            
+                            // Start Voice Receiver (RTSP)
+                            // Voice URL: rtsp://<SERVER_IP>:8554/voice_<DEVICE_ID>
+                            val voiceUrl = "rtsp://$serverIp:8554/voice_$boatId"
+                            voiceReceiver?.startListening(voiceUrl)
 
                         } catch (e: Exception) {
                             e.printStackTrace()
@@ -324,6 +331,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun stopStreaming() {
         try {
+            voiceReceiver?.stopListening()
             gpsFirebaseManager?.stopUpdates()
             firebaseManager?.setOffline()
             

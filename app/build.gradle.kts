@@ -15,8 +15,8 @@ android {
         applicationId = "com.yart.livekit"
         minSdk = 24
         targetSdk = 34
-        versionCode = 3
-        versionName = "2.0.1"  // Added srtLatency config from Firebase
+        versionCode = 4
+        versionName = "2.1.0"  // Added Admin Voice Receiver (RTSP/ExoPlayer)
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
@@ -111,4 +111,9 @@ dependencies {
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:32.7.1"))
     implementation("com.google.firebase:firebase-database")
+
+    // Media3 (ExoPlayer)
+    implementation("androidx.media3:media3-exoplayer:1.2.1")
+    implementation("androidx.media3:media3-exoplayer-rtsp:1.2.1")
+    implementation("androidx.media3:media3-ui:1.2.1")
 }
